@@ -1,0 +1,8 @@
+{% extends 'admin_base.html' %}{% block content %}
+<div class="order-details-head"><div><a href="{{url_for('admin_orders')}}" class="mini">← Back to Orders</a><h1>Order #{{o.order_no}}</h1><span class="status status-{{o.status|lower}}">{{o.status}}</span></div><a class="btn" href="{{url_for('download_order_details',oid=o.id)}}">↓ Download Details</a></div>
+<div class="order-detail-grid">
+<section class="detail-card"><h2>Buyer Information</h2><dl><dt>Full name</dt><dd>{{o.name}}</dd><dt>Phone</dt><dd>{{o.phone}}</dd><dt>City / Area</dt><dd>{{o.city}}</dd><dt>Detailed address</dt><dd>{{o.address}}</dd><dt>Notes</dt><dd>{{o.notes or '-'}}</dd></dl></section>
+<section class="detail-card"><h2>Order Information</h2><dl><dt>Product</dt><dd>{{o.product_name}}</dd><dt>Size</dt><dd>{{o.size or '-'}}</dd><dt>Color</dt><dd>{{o.color or '-'}}</dd><dt>Quantity</dt><dd>{{o.qty}}</dd><dt>Unit price</dt><dd>{{ money(o.unit_price) }}</dd><dt>Total</dt><dd><strong>{{ money(o.total) }}</strong></dd></dl></section>
+<section class="detail-card"><h2>Order Status</h2><dl><dt>Order number</dt><dd>#{{o.order_no}}</dd><dt>Created</dt><dd>{{o.created_at}}</dd><dt>Current status</dt><dd><span class="status status-{{o.status|lower}}">{{o.status}}</span></dd><dt>Customer request</dt><dd>{% if o.customer_action %}<span class="action-warning">{{o.customer_action}}</span>{% else %}-{% endif %}</dd></dl></section>
+</div>
+{% endblock %}

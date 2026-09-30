@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="store-hero">
+  <div class="store-hero-inner">
+    <span class="eyebrow">sheinSY</span>
+    <h1>{{ 'اكتشف sheinSY' if lang=='ar' else 'Discover sheinSY' }}</h1>
+    <p>{{ 'مكياج، عناية بالبشرة وحقائب في مكان واحد.' if lang=='ar' else 'Makeup, skin care and bags in one place.' }}</p>
+  </div>
+</section>
+
+<section class="category-section" aria-label="Product categories">
+  <div class="category-orbs">
+    <a class="category-orb {{ 'active' if not selected_category else '' }}" href="{{ url_for('home') }}">
+      <span class="orb-icon">✦</span><strong>{{ 'الكل' if lang=='ar' else 'All' }}</strong>
+    </a>
+    <a class="category-orb {{ 'active' if selected_category=='Makeup' else '' }}" href="{{ url_for('home', category='Makeup') }}">
+      <span class="orb-icon">✧</span><strong>{{ 'مكياج' if lang=='ar' else 'Makeup' }}</strong>
+    </a>
+    <a class="category-orb {{ 'active' if selected_category=='Skin Care' else '' }}" href="{{ url_for('home', category='Skin Care') }}">
+      <span class="orb-icon">◌</span><strong>{{ 'العناية' if lang=='ar' else 'Skin Care' }}</strong>
+    </a>
+    <a class="category-orb {{ 'active' if selected_category=='Bags' else '' }}" href="{{ url_for('home', category='Bags') }}">
+      <span class="orb-icon">◇</span><strong>{{ 'حقائب' if lang=='ar' else 'Bags' }}</strong>
+    </a>
+  </div>
+</section>
+
+<section class="products-section">
+  <div class="products-heading">
+    <div><span class="eyebrow">{{ 'المتجر' if lang=='ar' else 'SHOP' }}</span><h2>{{ selected_category or ('المنتجات' if lang=='ar' else 'Products') }}</h2></div>
+    <span class="product-count">{{ products|length }} {{ 'منتج' if lang=='ar' else 'items' }}</span>
+  </div>
+  <div class="product-grid">
+    {% for p in products %}
+    <article class="product-card">
+      <a href="{{ url_for('product', pid=p.id) }}">
+        <div class="product-card-image">
+          {% if p.image %}<img src="{{ url_for('static', filename='uploads/'+p.image) }}" alt="{{ p.name }}">
+          {% else %}<div class="placeholder">shein<span>SY</span></div>{% endif %}
+          <span class="product-category">{{ p.category }}</span>
+        </div>
+        <div class="product-card-body"><p class="brand">{{ p.brand }}</p><h3>{{ p.name }}</h3><strong>{{ money(p.price) }}</strong></div>
+      </a>
+    </article>
+    {% else %}<div class="empty-products"><h3>{{ 'لا توجد منتجات' if lang=='ar' else 'No products found' }}</h3><p>{{ 'جرّب قسماً آخر أو استخدم البحث.' if lang=='ar' else 'Try another category or use the search bar.' }}</p></div>{% endfor %}
+  </div>
+</section>
+{% endblock %}
