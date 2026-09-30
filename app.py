@@ -159,8 +159,13 @@ def admin_required(): return session.get('admin')
 @app.route('/admin/login',methods=['GET','POST'])
 def admin_login():
     if request.method=='POST':
-        c=db(); a=c.execute('SELECT * FROM admins WHERE username=?',(request.form['username'],)).fetchone(); c.close()
-        if a and check_password_hash(a['password_hash'],request.form['password']): session['admin']=True; return redirect(url_for('admin_dashboard'))
+        username=request.form.get('username','').strip()
+        password=request.form.get('password','')
+        # Admin credentials are controlled by Render's ADMIN_PASSWORD environment variable.
+        # This avoids stale passwords stored in a temporary SQLite database.
+        if username == 'admin' and password == ADMIN_PASSWORD:
+            session['admin']=True
+            return redirect(url_for('admin_dashboard'))
         flash('Invalid username or password')
     return render_template('admin_login.html')
 @app.route('/admin/logout')
