@@ -1,0 +1,14 @@
+{% extends 'base.html' %}{% block content %}
+<h1>Employee Management</h1>
+<section class="card"><h2>Add Employee</h2>
+<form method="post" class="grid"><input type="hidden" name="_csrf" value="{{csrf_token()}}">
+<label>Username<input name="username" minlength="3" maxlength="40" pattern="[A-Za-z0-9_]+" required autocomplete="off" placeholder="Example: ahmad"></label>
+<label>Password<input name="password" type="password" minlength="12" required autocomplete="new-password"></label>
+<button class="wide">Create Account</button></form></section>
+<section class="card employee-list"><h2>Employee Accounts</h2>
+{% for e in employees %}
+<div class="employee-row"><div><strong>{{e.username}}</strong> <span class="badge">{{'Active' if e.active else 'Disabled'}}</span></div>
+<form method="post" action="{{url_for('employee_password',uid=e.id)}}" class="inline-form"><input type="hidden" name="_csrf" value="{{csrf_token()}}"><input type="password" name="password" minlength="12" required autocomplete="new-password" placeholder="New password (12+ characters)"><button>Change Password</button></form>
+<form method="post" action="{{url_for('employee_toggle',uid=e.id)}}"><input type="hidden" name="_csrf" value="{{csrf_token()}}"><button class="secondary">{{'Disable' if e.active else 'Reactivate'}}</button></form></div>
+{% else %}<p>No employee accounts yet.</p>{% endfor %}
+</section>{% endblock %}

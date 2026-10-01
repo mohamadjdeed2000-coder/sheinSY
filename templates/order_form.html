@@ -1,0 +1,27 @@
+{% extends 'base.html' %}{% block content %}
+<section class="card"><h1>{{'Edit Order ' ~ o.order_no if o else 'New Customer Order'}}</h1>
+<form method="post" {% if not o %}enctype="multipart/form-data"{% endif %} id="order-form">
+<input type="hidden" name="_csrf" value="{{csrf_token()}}">
+<div class="grid"><label>Customer Name<input name="customer_name" value="{{o.customer_name if o else ''}}" required></label>
+<label>Phone Number<input name="phone" value="{{o.phone if o else ''}}" required></label>
+<label>Province<select name="province" required><option value="">Select province</option>{% for province in provinces %}<option {% if o and o.province==province %}selected{% endif %}>{{province}}</option>{% endfor %}</select></label><label class="wide">Detailed Area / Address<input name="area" value="{{o.area if o else ''}}" placeholder="District, street, building and nearby landmark" required></label><label>Gender<select name="gender" required><option value="" {% if not o %}selected{% endif %} disabled>Select gender</option><option value="Man" {% if o and o.gender=='Man' %}selected{% endif %}>Man</option><option value="Women" {% if o and o.gender=='Women' %}selected{% endif %}>Women</option></select></label><label class="wide">Comment (optional)<textarea name="comment" maxlength="1000" placeholder="Additional details for this order">{{o.comment if o else ''}}</textarea></label></div>
+<h2>Products, colors and sizes</h2><p>Choose an available product, then its color and size. Prices are in USD.</p><div id="items"></div><button type="button" class="secondary" id="add-item">+ Add another item</button>{% if not o %}<p><label>ID Document (optional)<input type="file" name="id_image" accept="image/*,.pdf"></label></p>{% else %}<p>The existing ID document remains attached.</p>{% endif %}
+<p><button type="submit">{{'Save Changes' if o else 'Submit Order'}}</button></p></form></section>
+<script>
+let catalog=[], initial={{items|map(attribute='variant_id')|list|tojson}}, quantities={{items|map(attribute='quantity')|list|tojson}};
+const container=document.getElementById('items');
+function option(select,value,text,disabled=false){const o=new Option(text,value);o.disabled=disabled;select.add(o)}
+function fill(row,selected){const p=row.querySelector('.product'),color=row.querySelector('.color'),size=row.querySelector('.size'),qty=row.querySelector('input'),note=row.querySelector('.availability');
+ const current=catalog.find(v=>String(v.id)===String(selected));
+ p.innerHTML=''; option(p,'','Choose product');const names=new Map(catalog.map(v=>[v.product_id,v.name]));for(const [id,name] of names)option(p,id,name);
+ if(current)p.value=current.product_id;
+ function colors(){color.innerHTML='';option(color,'','Choose color');for(const val of new Set(catalog.filter(v=>String(v.product_id)===p.value).map(v=>v.color)))option(color,val,val);sizes()}
+ function sizes(){size.innerHTML='';option(size,'','Choose size');for(const v of catalog.filter(v=>String(v.product_id)===p.value&&v.color===color.value))option(size,v.id,v.size+(v.stock===0?' — Out of stock':''),v.stock===0&&String(v.id)!==String(selected));show()}
+ function show(){const v=catalog.find(v=>String(v.id)===size.value);note.textContent=v?`${v.stock===0?'Out of stock':v.stock+' available'} · USD ${(v.price_cents/100).toFixed(2)}`:'';note.style.color=v&&v.stock===0?'#b42318':'';qty.max=10000}
+ p.onchange=colors;color.onchange=sizes;size.onchange=show;colors();if(current){color.value=current.color;sizes();size.value=current.id;show()}
+}
+function add(selected,quantity=1){const row=document.createElement('div');row.className='item-row';row.innerHTML='<label>Product<select class="product" required></select></label><label>Color<select class="color" required></select></label><label>Size<select class="size" name="variant_id[]" required></select></label><label>Quantity<input name="quantity[]" type="number" min="1" max="10000" required></label><small class="availability"></small><button type="button" class="secondary">Remove</button>';row.querySelector('input').value=quantity;row.querySelector('button').onclick=()=>{if(container.children.length>1)row.remove()};container.append(row);fill(row,selected)}
+async function refresh(){try{const r=await fetch('{{url_for('inventory_json')}}',{cache:'no-store'});if(!r.ok)return;catalog=await r.json();for(const row of container.children){const selected=row.querySelector('.size').value;fill(row,selected)}}catch(e){}}
+document.getElementById('add-item').onclick=()=>add();
+(async()=>{await refresh();if(initial.length){initial.forEach((id,i)=>add(id,quantities[i]));if(initial.some(id=>!id)){const warning=document.createElement('p');warning.textContent='This older order contains items without inventory links. Select their products again before saving.';container.before(warning)}}else add()})();setInterval(refresh,15000);
+</script>{% endblock %}
