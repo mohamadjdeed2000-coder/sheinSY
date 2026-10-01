@@ -1,23 +1,12 @@
-# sheinSY
+# Clothing Orders — Inventory & Reports v6
 
-Bilingual Flask storefront and admin dashboard.
+English employee/admin order application. New: product catalog, stock per color and size, Syrian province selection, daily/weekly/monthly/custom reports and CSV.
 
-## Run locally
-1. Install Python 3.11+
-2. Open a terminal in this folder
-3. `pip install -r requirements.txt`
-4. `python app.py`
-5. Open `http://127.0.0.1:5000`
+Read INVENTORY_REPORTS.md for upgrading and inventory/report rules. Read DEPLOY_RENDER.md for hosting.
 
-Admin: `http://127.0.0.1:5000/admin/login`
-Default username: `admin`
-Default password: `Admin@12345`
+Local run:
 
-## Configuration
-Set environment variables before production deployment:
-- `ADMIN_PASSWORD` — initial admin password on a fresh database
-- `SECRET_KEY` — secure random Flask session key
-- `WHATSAPP_NUMBER` — international number without +, e.g. 9715XXXXXXXX
+    pip install -r requirements.txt
+    python app.py
 
-For Render: Build command `pip install -r requirements.txt`; Start command `gunicorn app:app`.
-Note: SQLite and uploaded images need persistent storage in production.
+Open http://127.0.0.1:5000. Local demo admin: admin / Admin123!; employee: employee / Employee123!. Cloud uses INITIAL_ADMIN_PASSWORD and existing accounts. Do not upload database or uploads to GitHub.
