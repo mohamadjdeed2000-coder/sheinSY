@@ -1,7 +1,0 @@
-{% extends 'base.html' %}{% block content %}
-<h1>Trash</h1><p>Orders here are hidden from the Dashboard. Restore an order to return it to the Dashboard.</p>
-<form class="search"><input name="q" value="{{q}}" placeholder="Search deleted orders by name, phone, or order number"><button>Search</button></form>
-<div class="table"><table><tr><th>Order No.</th><th>Customer</th><th>Phone</th><th>Employee</th><th>Status</th><th>Moved to Trash (UTC)</th><th>By</th><th>Actions</th></tr>
-{% for o in orders %}<tr><td>{{o.order_no}}</td><td>{{o.customer_name}}</td><td>{{o.phone}}</td><td>{{o.employee}}</td><td>{{o.status}}</td><td>{{o.deleted_at}}</td><td>{{o.deleted_by or "Admin"}}</td><td class="actions"><a href="{{url_for('order_detail',oid=o.id)}}">View</a><form method="post" action="{{url_for('restore_order',oid=o.id)}}"><input type="hidden" name="_csrf" value="{{csrf_token()}}"><button type="submit">Restore</button></form></td></tr>
-{% else %}<tr><td colspan="8">Trash is empty.</td></tr>{% endfor %}</table></div>
-{% endblock %}
